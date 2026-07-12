@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Per Lei 🎀</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-gradient: linear-gradient(135deg, #FFD1DC 0%, #E6E6FA 100%);
+    --pink-hot: #FF69B4;
+    --pink-light: #FFB6C1;
+    --purple-main: #BA55D3;
+    --purple-light: #DDA0DD;
+    --white: #FFFFFF;
+    --text-main: #4A4A4A;
+    --text-muted: #808080;
+    --shadow-soft: 0 8px 25px rgba(255, 105, 180, 0.25);
+    --shadow-hard: 0 4px 0 #D1478F;
+    --radius-big: 30px;
+    font-size: clamp(15px, 1.4vw + 10px, 18px);
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  
+  body, html {
+    margin: 0; padding: 0; height: 100%; overflow: hidden;
+    background: var(--bg-gradient);
+    font-family: 'Quicksand', sans-serif;
+    color: var(--text-main);
+  }
+
+  body {
+    display: flex; align-items: center; justify-content: center;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    background-image: radial-gradient(rgba(255,255,255,0.4) 2px, transparent 2px);
+    background-size: 30px 30px;
+  }
+
+  h1, h2, h3, .pixel { font-family: 'Fredoka One', cursive; font-weight: normal; letter-spacing: 1px; }
+
+  #app {
+    position: relative;
+    width: 100%; max-width: 480px; height: 100vh; max-height: 850px;
+    overflow: hidden; background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    border: 4px solid var(--white);
+    box-shadow: var(--shadow-soft);
+  }
+  @media (min-width: 500px) {
+    #app { height: 90vh; border-radius: 40px; }
+  }
+
+  .scene {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 8%; opacity: 0; pointer-events: none;
+    transform: scale(0.95); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: center;
+  }
+  .scene.active { opacity: 1; pointer-events: auto; transform: scale(1); }
+
+  .eyebrow {
+    font-weight: 700; color: var(--purple-main);
+    text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem;
+    background: var(--white); padding: 5px 15px; border-radius: 20px;
+    margin-bottom: 1rem; border: 2px solid var(--purple-light);
+  }
+
+  button { font-family: 'Fredoka One', cursive; cursor: pointer; border: none; outline: none; }
+  
+  .btn {
+    background: var(--pink-hot); color: var(--white);
+    padding: 12px 28px; border-radius: 25px; font-size: 1.1rem;
+    box-shadow: var(--shadow-hard); transition: transform 0.1s;
+    letter-spacing: 1px;
+  }
+  .btn:active { transform: translateY(4px); box-shadow: 0 0 0 #D1478F; }
+  
+  .back {
+    position: absolute; top: 20px; left: 20px;
+    background: var(--white); color: var(--pink-hot);
+    width: 45px; height: 45px; border-radius: 50%;
+    font-size: 1.2rem; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10;
+  }
+
+  .sparkle-icon { font-size: 3.5rem; margin-bottom: 10px; animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+  #scene-intro h1 { font-size: 2.2rem; color: var(--pink-hot); line-height: 1.2; margin-top: 0; }
+
+  .card {
+    background: var(--white); border-radius: var(--radius-big); padding: 2em 1.5em;
+    width: 100%; box-shadow: var(--shadow-soft); border: 3px solid var(--pink-light);
+  }
+  .slots { display: flex; gap: 10px; justify-content: center; margin: 1.5em 0; }
+  .slot {
+    width: 50px; height: 50px; border: 3px solid var(--purple-light); border-radius: 15px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fredoka One', cursive; font-size: 1.5rem; color: var(--purple-main); background: #fafafa;
+  }
+  .slot.filled { background: var(--purple-main); color: var(--white); border-color: var(--purple-main); }
+  .keys { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .key {
+    background: var(--white); border: 2px solid var(--pink-light); border-radius: 12px;
+    padding: 12px 0; font-size: 1.2rem; color: var(--pink-hot); box-shadow: 0 4px 0 var(--pink-light);
+  }
+  .key:active { transform: translateY(4px); box-shadow: 0 0 0 var(--pink-light); }
+  .key.wide { grid-column: span 2; background: var(--pink-hot); color: var(--white); border: none; box-shadow: var(--shadow-hard); }
+  .shake { animation: shake 0.4s; }
+  @keyframes shake { 20%,60%{transform:translateX(-8px)} 40%,80%{transform:translateX(8px)} 100%{transform:translateX(0)} }
+
+  .gifts-row { display: flex; gap: 15px; justify-content: center; margin: 2em 0; flex-wrap: wrap; }
+  .gift {
+    width: 90px; height: 90px; border-radius: 20px; position: relative; cursor: pointer;
+    background: var(--white); border: 3px solid var(--pink-light);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transition: transform 0.2s; box-shadow: 0 5px 15px rgba(255,105,180,0.2);
+  }
+  .gift:active { transform: scale(0.9); }
+  .gift-icon { font-size: 2rem; margin-bottom: 5px; }
+  .gift .label { font-size: 0.75rem; font-weight: 700; color: var(--purple-main); }
+  .gift .check {
+    position: absolute; top: -10px; right: -10px; width: 25px; height: 25px;
+    background: #00E676; color: white; border-radius: 50%; font-size: 0.8rem;
+    display: none; align-items: center; justify-content: center; border: 2px solid white;
+  }
+  .gift.opened { background: #f0f0f0; border-color: #ddd; }
+  .gift.opened .check { display: flex; }
+
+  .mystery-wrap { margin-top: 2em; }
+  .mystery {
+    width: 80px; height: 80px; border-radius: 50%; margin: 0 auto;
+    background: rgba(255,255,255,0.4); border: 3px dashed var(--purple-main);
+    display: flex; align-items: center; justify-content: center; font-size: 2rem;
+    opacity: 0.5; pointer-events: none; transition: all 0.4s; color: var(--purple-main);
+  }
+  .mystery.unlocked {
+    opacity: 1; pointer-events: auto; background: var(--pink-hot); color: white;
+    border: 3px solid white; box-shadow: 0 0 20px var(--pink-hot); cursor: pointer;
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse { 0% {transform: scale(1);} 50% {transform: scale(1.1);} 100% {transform: scale(1);} }
+
+  .envelope { width: 140px; height: 100px; position: relative; margin: 0 auto 1.5em; cursor: pointer; }
+  .envelope .base { position: absolute; inset: 0; background: var(--pink-hot); border-radius: 10px; }
+  .envelope .flap {
+    position: absolute; top: 0; left: 0; right: 0; height: 0;
+    border-left: 70px solid transparent; border-right: 70px solid transparent; border-top: 55px solid var(--pink-light);
+    transform-origin: top; transition: transform 0.6s ease;
+  }
+  .envelope.open .flap { transform: rotateX(180deg); }
+  .envelope .heart-seal { position: absolute; top: 40px; left: 50%; transform: translate(-50%, -50%); font-size: 2rem; z-index: 2; }
+  
+  .letter-paper {
+    background: var(--white); border-radius: 20px; padding: 1.8em;
+    max-height: 55vh; overflow-y: auto; text-align: left;
+    font-size: 0.95rem; line-height: 1.6; border: 3px solid var(--pink-light);
+    box-shadow: inset 0 0 20px rgba(255, 182, 193, 0.2); display: none;
+  }
+  .letter-paper.show { display: block; animation: slideUp 0.5s ease; }
+  @keyframes slideUp { from{opacity:0; transform:translateY(20px)} to{opacity:1; transform:translateY(0)} }
+  .letter-paper p { margin-bottom: 15px; }
+
+  .polaroids {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;
+    width: 100%; max-height: 65vh; overflow-y: auto; padding: 10px;
+  }
+  .polaroid {
+    background: var(--white); padding: 10px 10px 20px; border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1); transform: rotate(var(--r, 0deg));
+    border: 2px solid var(--pink-light);
+  }
+  .polaroid:nth-child(odd) { --r: -4deg; }
+  .polaroid:nth-child(even) { --r: 4deg; }
+  .polaroid img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 5px; background: var(--purple-light); }
+  
+  .spotify-wrap { width: 100%; background: var(--white); padding: 15px; border-radius: 20px; border: 3px solid var(--pink-light); box-shadow: var(--shadow-soft); }
+
+  .countdown { display: flex; gap: 15px; margin: 2em 0; justify-content: center; }
+  .countdown div {
+    background: var(--white); border: 3px solid var(--purple-main); border-radius: 20px;
+    padding: 15px; min-width: 80px; box-shadow: 0 6px 0 var(--purple-light);
+  }
+  .countdown .num { font-family: 'Fredoka One', cursive; font-size: 2rem; display: block; color: var(--pink-hot); }
+  .countdown .lbl { font-size: 0.8rem; color: var(--purple-main); font-weight: 700; text-transform: uppercase; }
+
+  /* Nuovi stili per Timeline e Apri Quando */
+  .timeline-list { list-style: none; padding: 0; text-align: left; margin: 0; width: 100%; }
+  .timeline-container { height: 50vh; overflow-y: auto; width: 100%; margin: 20px 0; padding-right: 10px; }
+  .timeline-item { border-left: 3px solid var(--pink-light); padding: 15px 20px; margin-bottom: 20px; position: relative; background: #fff; border-radius: 0 15px 15px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+  .timeline-item::before { content: '💜'; position: absolute; left: -12px; top: 20px; font-size: 1rem; }
+  
+  .apri-quando-list { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+  .apri-quando-btn { background: #fff; border: 2px solid var(--pink-light); padding: 15px; border-radius: 15px; font-weight: 700; color: var(--text-main); transition: transform 0.1s; }
+  .apri-quando-btn:active { transform: scale(0.98); }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <section class="scene active" id="scene-intro">
+    <div class="eyebrow">(lo so sono in ritardo, come al nostro solito...)</div>
+    <div class="sparkle-icon">🎀</div>
+    <h1>Buon Compleanno<br>Amore Mio!</h1>
+    <p style="margin-bottom: 2rem; color: var(--text-muted); font-weight: 700;">Ho preparato un piccolo spazio solo per noi.</p>
+    <button class="btn" onclick="goto('scene-password')">Apri 💜</button>
+  </section>
+
+  <section class="scene" id="scene-password">
+    <div class="card">
+      <h2 style="color:var(--pink-hot); margin-top:0;">Inserisci la password</h2>
+      <p style="font-size:0.9rem; color:var(--text-muted);">Solo tu puoi saperla 🤫</p>
+      <div class="slots" id="slots"></div>
+      <div class="keys" id="keys"></div>
+      <p id="pw-error" style="visibility:hidden; color:var(--pink-hot); font-weight:700; margin-bottom:0;">Riprova 💕</p>
+    </div>
+  </section>
+
+  <section class="scene" id="scene-success">
+    <div class="sparkle-icon" style="font-size:4rem; animation:none;">Diva💅🏻</div>
+    <h2 style="color:var(--purple-main); font-size:2rem;">Ce l'hai fatta!</h2>
+    <p style="font-weight:700; color:var(--text-muted);">Sei pronta?</p>
+    <button class="btn" style="margin-top:20px;" onclick="goto('scene-gifts')">Andiamo ✨</button>
+  </section>
+
+  <section class="scene" id="scene-gifts">
+    <h2 style="color:var(--pink-hot);">I tuoi regali</h2>
+    <div class="gifts-row">
+      <div class="gift" data-gift="letter" onclick="openGift('letter')"><div class="gift-icon">💌</div><span class="label">Lettera</span><span class="check">✓</span></div>
+      <div class="gift" data-gift="photos" onclick="openGift('photos')"><div class="gift-icon">📸</div><span class="label">Foto</span><span class="check">✓</span></div>
+      <div class="gift" data-gift="song" onclick="openGift('song')"><div class="gift-icon">🎧</div><span class="label">Canzone</span><span class="check">✓</span></div>
+      <div class="gift" onclick="goto('scene-timeline')"><div class="gift-icon">🗓️</div><span class="label">Storia</span><span class="check">✓</span></div>
+      <div class="gift" onclick="goto('scene-apri-quando')"><div class="gift-icon">💌</div><span class="label">Messaggi</span><span class="check">✓</span></div>
+    </div>
+    <div class="mystery-wrap">
+      <div class="mystery" id="mystery-box" onclick="tryMystery()">🔒</div>
+    </div>
+  </section>
+
+  <!-- SEZIONE TIMELINE SCORRIBILE -->
+  <section class="scene" id="scene-timeline">
+    <button class="back" onclick="goto('scene-gifts')">Torna</button>
+    <h2 style="color:var(--pink-hot); margin-bottom: 5px;">La nostra storia</h2>
+    <div style="background: #fff; padding: 10px; border-radius: 15px; width: 100%; margin-bottom: 10px;">
+        <p style="margin:0; font-weight:bold; color:var(--purple-main); font-size: 0.9rem;">Stiamo insieme da:</p>
+        <h3 id="days-count" style="margin:5px 0 0 0; color:var(--pink-hot); font-size: 1.4rem;">...</h3>
+    </div>
+    
+    <div class="timeline-container">
+        <ul class="timeline-list">
+            <li class="timeline-item"><strong>2 Luglio 2025</strong><br>Ci siamo conosciuti.</li>
+            <li class="timeline-item"><strong>13 Agosto 2025</strong><br>Il nostro primo appuntamento.</li>
+            <li class="timeline-item"><strong>4 Settembre 2025</strong><br>La nostra bellissima foto al Burger King l'abbiamo fatta oggi!</li>
+            <li class="timeline-item"><strong>13 Settembre 2025</strong><br>La prima volta a casa tua. Che ansia.</li>
+            <li class="timeline-item"><strong>16 Settembre 2025</strong><br>Il nostro inizio ufficiale.</li>
+            <li class="timeline-item"><strong>ATTENZIONE, EVENTO CANONICO</strong><br>Il primo di tanti bacini.</li>
+            <li class="timeline-item"><strong>14 Febbraio 2026</strong><br>Il primo San Valentino. Ti è piaciuto il mio bell'outfit eh.</li>
+            <li class="timeline-item"><strong>8 Luglio 2026</strong><br>Concerto di Sfera. Non eravamo insieme ma il mio pensiero eri sempre tu.</li>
+			<p>p.s. lo sai che ce ne sarebbero un infinità ma non potevo metterle tutte :(</p>
+        </ul>
+    </div>
+  </section>
+
+  <section class="scene" id="scene-apri-quando">
+    <button class="back" onclick="goto('scene-gifts')">Torna</button>
+    <h2 style="color:var(--pink-hot);">Apri quando...</h2>
+    <div class="apri-quando-list">
+        <button class="apri-quando-btn" onclick="alert('Sei la mia pallavolista preferita! Sei una roccia amore, non mollare mai.')">...ti senti giù 🌧️</button>
+        <button class="apri-quando-btn" onclick="alert('Sei bellissima e unica. Non dimenticarlo mai.')">...hai bisogno di sicurezze 👑</button>
+        <button class="apri-quando-btn" onclick="alert('Mi manchi tantissimo! Conta i giorni che mancano, ti sto aspettando qui.')">...ti manco 🥺</button>
+    </div>
+  </section>
+
+  <section class="scene" id="scene-letter">
+    <button class="back" onclick="goto('scene-gifts')">Torna</button>
+    <div class="envelope" id="envelope" onclick="openEnvelope()">
+      <div class="base"></div>
+      <div class="flap"></div>
+      <div class="heart-seal">💜</div>
+    </div>
+    <div class="letter-paper" id="letter-paper">
+      <p>Amore mio, buon compleanno.</p>
+      <p>So che questo messaggio arriva con qualche giorno di ritardo, ma ho passato tutto questo tempo a lavorare a questo progetto, curando ogni dettaglio perché volevo che fosse qualcosa di unico, proprio come lo sei tu per me. Anche se in questo momento sei lontana in vacanza, volevo che avessi un posto tutto nostro, un piccolo rifugio digitale dove poter sentire quanto ti sono vicino, a prescindere dai chilometri che ci separano.</p>
+      <p>Guardandoti crescere e scoprendoti ogni giorno di più, mi rendo conto di quanto la tua presenza sia diventata il centro del mio mondo. Non è solo l'affetto che provo per te, ma la profonda ammirazione che ho per la persona che sei: la tua determinazione, la tua sensibilità, e quella capacità incredibile che hai di ascoltare senza giudicare.</p>
+      <p>La tua risata, poi, è diventata per me un punto di riferimento, una melodia che ha il potere di rischiarare anche le mie giornate più pesanti. Sei la mia certezza, il porto sicuro dove so di poter sempre tornare, la persona con cui ogni cosa, anche la più banale, diventa speciale.</p>
+      <p>Questo sito è il mio modo per dirti che, ovunque tu sia, il mio pensiero non si allontana mai da te. Spero che questa vacanza ti stia regalando tutto il relax, la gioia e la serenità che meriti immensamente. Sei una ragazza speciale e vederla vivere momenti felici mi riempie di orgoglio.</p>
+      <p>Goditi ogni singolo istante di questa esperienza, ricaricati e torna con ancora più luce negli occhi. Io ti aspetto qui, impaziente di riabbracciarti non appena varcherai quella soglia, perché è lì, accanto a te, che mi sento finalmente completo.</p>
+      <p style="text-align:right; font-weight:700; color:var(--pink-hot); margin-top:20px;">Ti amo immensamente,<br>Alessio 💜</p>
+    </div>
+    <p id="letter-hint" style="color:var(--purple-main); font-weight:700; font-size:0.9rem;">Tocca la busta per aprirla</p>
+  </section>
+
+  <section class="scene" id="scene-photos">
+    <button class="back" onclick="goto('scene-gifts')">Torna</button>
+    <h2 style="color:var(--pink-hot); margin-top:2rem;">I nostri ricordi</h2>
+    <div class="polaroids">
+      <div class="polaroid"><img src="images/img1.jpg" alt=""><div style="text-align:center; font-weight:700; margin-top:5px; color:var(--purple-main);">🎀</div></div>
+      <div class="polaroid"><img src="images/img2.jpg" alt=""><div style="text-align:center; font-weight:700; margin-top:5px; color:var(--purple-main);">🎀</div></div>
+      <div class="polaroid"><img src="images/img3.jpg" alt=""><div style="text-align:center; font-weight:700; margin-top:5px; color:var(--purple-main);">🎀</div></div>
+      <div class="polaroid"><img src="images/img4.jpg" alt=""><div style="text-align:center; font-weight:700; margin-top:5px; color:var(--purple-main);">🎀</div></div>
+    </div>
+  </section>
+
+  <section class="scene" id="scene-song">
+    <button class="back" onclick="goto('scene-gifts')">Torna</button>
+    <h2 style="color:var(--purple-main);">La nostra vibe</h2>
+    <div class="spotify-wrap">
+      <iframe src="https://open.spotify.com/embed/track/50kpGaPAhYJ3sGmk6vplg0?theme=0" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+    </div>
+    <div class="sparkle-icon" style="margin-top:2rem; font-size:2.5rem;">🦋</div>
+  </section>
+
+  <section class="scene" id="scene-secret">
+    <div class="eyebrow" style="background:var(--pink-hot); color:white; border:none;">Ultima cosa...</div>
+    <h2 style="color:var(--purple-main); font-size:1.8rem;">C'è una sorpresa<br>che ti aspetta.</h2>
+    <div class="countdown" id="countdown"></div>
+    <p style="color:var(--text-muted); font-weight:700;">Il tuo regalo non è finito qui, ma l'altra metà l'avrai quando ritorni quindi torna presto!</p>
+  </section>
+
+</div>
+
+<script>
+const PASSWORD = "NANA";
+const RETURN_DATE = "2026-07-19T15:00:00";
+
+function goto(id){
+  document.querySelectorAll('.scene').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/* Calcolo Giorni Insieme */
+function updateDaysCount() {
+    const start = new Date("2025-09-16").getTime();
+    const now = new Date().getTime();
+    const days = Math.floor((now - start) / (1000 * 60 * 60 * 24));
+    document.getElementById('days-count').innerText = days + " giorni";
+}
+updateDaysCount();
+
+/* Gestione Password */
+let typed = "";
+const slotsEl = document.getElementById('slots');
+const keysEl = document.getElementById('keys');
+
+function renderSlots(){
+  slotsEl.innerHTML="";
+  for(let i=0;i<PASSWORD.length;i++){
+    const s=document.createElement('div');
+    s.className='slot'+(i<typed.length?' filled':'');
+    s.textContent = i<typed.length ? typed[i] : '';
+    slotsEl.appendChild(s);
+  }
+}
+function buildKeys(){
+  const needed = [...new Set(PASSWORD.split(''))];
+  const decoys = "ABCDEFGHILMOPQRSTUVZ".split('').filter(l=>!needed.includes(l));
+  const letters = [...needed, ...decoys.slice(0, 9 - needed.length)].sort(()=>Math.random()-0.5);
+  keysEl.innerHTML="";
+  letters.forEach(l=>{
+    const b=document.createElement('button');
+    b.className='key'; b.textContent=l;
+    b.onclick=()=>pressKey(l);
+    keysEl.appendChild(b);
+  });
+  const del=document.createElement('button');
+  del.className='key wide'; del.textContent='CANCELLA';
+  del.onclick=()=>{ typed=typed.slice(0,-1); renderSlots(); };
+  keysEl.appendChild(del);
+}
+function pressKey(l){
+  if(typed.length>=PASSWORD.length) return;
+  typed+=l;
+  renderSlots();
+  if(typed.length===PASSWORD.length){
+    setTimeout(()=>{
+      if(typed===PASSWORD){
+        goto('scene-success');
+      } else {
+        const card=document.querySelector('#scene-password .card');
+        card.classList.add('shake');
+        document.getElementById('pw-error').style.visibility='visible';
+        setTimeout(()=>card.classList.remove('shake'),400);
+        typed="";
+        renderSlots();
+      }
+    },250);
+  }
+}
+renderSlots(); buildKeys();
+
+/* Gestione Regali */
+const opened = new Set();
+function openGift(which){
+  opened.add(which);
+  document.querySelector(`.gift[data-gift="${which}"]`).classList.add('opened');
+  if(opened.size>=3){
+    const mystery = document.getElementById('mystery-box');
+    mystery.classList.add('unlocked');
+    mystery.textContent = '🎁';
+  }
+  goto('scene-'+which);
+}
+function tryMystery(){
+  if(opened.size>=3) goto('scene-secret');
+}
+
+/* Animazione Lettera */
+function openEnvelope(){
+  const env = document.getElementById('envelope');
+  env.classList.add('open');
+  setTimeout(()=>{
+    document.getElementById('letter-paper').classList.add('show');
+    document.getElementById('letter-hint').style.display='none';
+  },400);
+}
+
+/* Countdown */
+function updateCountdown(){
+  const target=new Date(RETURN_DATE).getTime();
+  const now=Date.now();
+  let diff=Math.max(0,target-now);
+  const d=Math.floor(diff/86400000);
+  const h=Math.floor(diff%86400000/3600000);
+  const m=Math.floor(diff%3600000/60000);
+  document.getElementById('countdown').innerHTML = `
+    <div><span class="num">${d}</span><span class="lbl">giorni</span></div>
+    <div><span class="num">${h}</span><span class="lbl">ore</span></div>
+    <div><span class="num">${m}</span><span class="lbl">min</div>`;
+}
+updateCountdown();
+setInterval(updateCountdown,60000);
+</script>
+</body>
+</html>
